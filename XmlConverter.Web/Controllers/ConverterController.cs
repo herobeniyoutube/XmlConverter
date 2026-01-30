@@ -1,12 +1,12 @@
-using System.IO;
 using Microsoft.AspNetCore.Mvc;
-using XmlConverter.Web.XsdValidators.EmployersData;
+using System.Xml.Linq;
+using XmlConverter.Web.XmlValidators.EmployersData;
 
 namespace XmlConverter.Web.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ConverterController(ILogger<ConverterController> logger) : ControllerBase
+    public class ConverterController(ILogger<ConverterController> logger, EmployeeDataInMemoryStorage storage) : ControllerBase
     {
         [HttpPost("upload")]
         public async Task<IActionResult> Upload()
@@ -20,11 +20,21 @@ namespace XmlConverter.Web.Controllers
             await Request.Body.CopyToAsync(buffer, HttpContext.RequestAborted);
             buffer.Position = 0;
 
-            var result = await EmployersDataValidator.ValidateAsync(buffer, HttpContext.RequestAborted);
+            var type = await EmployersDataValidator.ValidateAsync(buffer, HttpContext.RequestAborted);
+            buffer.Position = 0;
 
+            var xdoc = XDocument.Load(buffer, LoadOptions.PreserveWhitespace);
+            storage.ReplaceData(xdoc, type);
 
-            return BadRequest("Empty body");
+            return Ok("Document uploaded");
+        }
 
+        [HttpPost("getConverted")]
+        public async Task<IActionResult> ConvertData()
+        {
+            var doc = storage.GetEmployeesData();
+
+            return Ok(doc.ToString());
         }
     }
 }

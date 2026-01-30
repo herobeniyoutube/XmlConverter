@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace XmlConverter.Web.XsdValidators.EmployersData
+namespace XmlConverter.Web.XmlValidators.EmployersData
 {
     public static class EmployersDataValidator
     {
-        public static async Task<EmployersDataType> ValidateAsync(Stream xmlStream, CancellationToken cancellationToken = default)
+        public static async Task<EmployeesDataType> ValidateAsync(Stream xmlStream, CancellationToken cancellationToken = default)
         {
-            var xsdDir = Path.Combine(AppContext.BaseDirectory, "XsdValidators", "EmployersData");
+            var xsdDir = Path.Combine(AppContext.BaseDirectory, "XmlValidators", "EmployersData");
             var schemas = Directory.GetFileSystemEntries(xsdDir, "*.xsd", SearchOption.TopDirectoryOnly);
 
             if (schemas.Length == 0)
@@ -31,8 +25,8 @@ namespace XmlConverter.Web.XsdValidators.EmployersData
                     var name = Path.GetFileNameWithoutExtension(schema);
                     return name switch
                     {
-                        "Data1" => EmployersDataType.Data1,
-                        "Data2" => EmployersDataType.Data2,
+                        "Data1" => EmployeesDataType.Data1,
+                        "Data2" => EmployeesDataType.Data2,
                         _ => throw new Exception("Schema type not found")
                     };
                 }

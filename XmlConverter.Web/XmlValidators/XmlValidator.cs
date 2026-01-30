@@ -1,7 +1,7 @@
 using System.Xml;
 using System.Xml.Schema;
 
-namespace XmlConverter.Web.XsdValidators
+namespace XmlConverter.Web.XmlValidators
 {
     public static class XmlValidator
     {
