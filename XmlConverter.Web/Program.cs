@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using XmlConverter.Web;
+using XmlConverter.Web.Middleware;
+using XmlConverter.Web.Services;
 using XmlConverter.Web.XmlValidators.EmployersData;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +14,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<EmployeeDataInMemoryStorage>();
 builder.Services.AddTransient<EmployersDataValidator>();
+builder.Services.AddTransient<ConverterService>();
 
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+});
 var app = builder.Build();
+app.MapRazorPages();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -22,6 +31,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthorization();
 
