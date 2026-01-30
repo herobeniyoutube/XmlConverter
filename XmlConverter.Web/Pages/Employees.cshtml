@@ -27,6 +27,24 @@
 
     <div style="flex: 1; border: 1px solid #ddd; padding: 16px; border-radius: 8px;">
         <h4>Converted data</h4>
-        <pre style="white-space: pre-wrap; word-break: break-word;">@Model.ConvertedXml</pre>
+        @if (Model.Employees.Count == 0)
+        {
+            <p>No data.</p>
+        }
+        else
+        {
+            @foreach (var employee in Model.Employees)
+            {
+                <div style="margin-bottom: 12px;">
+                    <strong>Сотрудник:</strong> @employee.Name @employee.Surname
+                    <div style="margin-left: 12px;">
+                        @foreach (var salary in employee.Salaries)
+                        {
+                            <div>— @salary.Month: @salary.Amount</div>
+                        }
+                    </div>
+                </div>
+            }
+        }
     </div>
 </div>

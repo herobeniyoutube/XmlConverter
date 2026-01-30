@@ -47,14 +47,9 @@ namespace XmlConverter.Web.Services
                 throw new InvalidOperationException("Missing required fields");
             }
 
-            var item = new XElement(
-                "item",
-                new XAttribute("name", request.Name),
-                new XAttribute("surname", request.Surname),
-                new XAttribute("amount", request.Amount),
-                new XAttribute("month", request.Month));
+            
 
-            storage.AddItemIfCorrectType(item);
+            storage.AddItemIfCorrectType(request);
         }
     }
 }

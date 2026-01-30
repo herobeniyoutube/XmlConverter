@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
+using XmlConverter.Web.Dto;
 using XmlConverter.Web.XmlValidators.EmployersData;
 using static XmlConverter.Web.XmlValidators.ValidatorExtension;
 
@@ -47,12 +48,34 @@ namespace XmlConverter.Web
             ConvertedData.NeedRecalculate = true;
         }
 
-        public void AddItemIfCorrectType(XElement item)
+        public void AddItemIfCorrectType(AppendItemRequest item)
         {
             if (_data is null) throw new InvalidOperationException("empty data");
             if (EmployeesType != EmployeesDataType.Data1) throw new InvalidOperationException("not supported");
 
-            _data.Root!.Add(new XElement(item));
+            var pay = _data.Root!;
+
+            var existing = pay.Elements("item").FirstOrDefault(x =>
+                string.Equals((string?)x.Attribute("name"), item.Name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals((string?)x.Attribute("surname"), item.Surname, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals((string?)x.Attribute("month"), item.Month, StringComparison.OrdinalIgnoreCase));
+
+            if (existing is null)
+            {
+                pay.Add(new XElement(
+                    "item",
+                    new XAttribute("name", item.Name),
+                    new XAttribute("surname", item.Surname),
+                    new XAttribute("amount", item.Amount),
+                    new XAttribute("month", item.Month)));
+            }
+            else
+            {
+                var existingAmount = ParseAmount((string?)existing.Attribute("amount"));
+                var newAmount = ParseAmount(item.Amount);
+                var sum = existingAmount + newAmount;
+                existing.SetAttributeValue("amount", sum.ToString());
+            }
 
             _data = NormalizeDocument(AddSumElement(_data));
             ConvertedData.EmployeesDataXml = null;
@@ -92,25 +115,23 @@ namespace XmlConverter.Web
             var total = 0m;
             foreach (var item in pay.Elements("item"))
             {
-                var amountValue = (string?)item.Attribute("amount");
-                if (string.IsNullOrWhiteSpace(amountValue))
-                {
-                    continue;
-                }
-
-                var normalized = amountValue.Replace('.', ',');
-                if (decimal.TryParse(normalized, out var amount))
-                {
-                    total += amount;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"invalid amount value '{amountValue}'");
-                }
+                var amount = ParseAmount((string?)item.Attribute("amount"));
+                total += amount;
             }
 
             pay.Add(new XElement("sum", new XAttribute("amount", total.ToString(CultureInfo.InvariantCulture))));
             return doc;
+        }
+
+        private static decimal ParseAmount(string? amountValue)
+        {
+            if (string.IsNullOrWhiteSpace(amountValue)) return 0m;
+
+            var normalized = amountValue.Replace('.', ',');
+
+            if (decimal.TryParse(normalized, out var amount)) return amount;
+
+            throw new InvalidOperationException($"invalid amount value {amountValue}");
         }
 
         private class EmployeesData(bool isNew)
