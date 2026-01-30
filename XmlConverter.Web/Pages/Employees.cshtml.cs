@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using XmlConverter.Web.Dto;
 using XmlConverter.Web.Services;
+using XmlConverter.Web.XmlValidators.EmployersData;
 
 namespace XmlConverter.Web.Pages
 {
@@ -9,6 +10,7 @@ namespace XmlConverter.Web.Pages
     {
         public string ConvertedXml { get; private set; } = string.Empty;
         public string SourceXml { get; private set; } = string.Empty;
+        public EmployeesDataType? EmployeesType { get; private set; }
 
         [BindProperty]
         public string Name { get; set; } = string.Empty;
@@ -36,6 +38,7 @@ namespace XmlConverter.Web.Pages
 
         private void LoadXml(ConverterService service)
         {
+            EmployeesType = service.GetEmployeesType();
             ConvertedXml = service.ConvertData();
             SourceXml = service.GetData();
         }

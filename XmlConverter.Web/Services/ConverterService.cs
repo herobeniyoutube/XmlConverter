@@ -32,6 +32,11 @@ namespace XmlConverter.Web.Services
             return storage.GetData().ToString();
         }
 
+        public EmployeesDataType? GetEmployeesType()
+        {
+            return storage.EmployeesType;
+        }
+
         public void AppendData(AppendItemRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Name) ||
