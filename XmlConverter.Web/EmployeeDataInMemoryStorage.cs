@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using XmlConverter.Web.XmlValidators.EmployersData;
@@ -42,13 +43,17 @@ namespace XmlConverter.Web
         public void ReplaceData(XDocument doc, EmployeesDataType type)
         {
             EmployeesType = type;
-            _data = doc;
+            _data = type == EmployeesDataType.Data1 ? AddSumElement(doc) : doc;
             ConvertedData.EmployeesDataXml = null;
             ConvertedData.NeedRecalculate = true;
         }
 
         public void AddItemIfCorrectType(XElement item)
         {
+            if (EmployeesType != EmployeesDataType.Data1)
+            {
+                throw new InvalidOperationException("not supported");
+            }
         }
 
         private static XslCompiledTransform LoadXslt(string xlst)
@@ -80,6 +85,34 @@ namespace XmlConverter.Web
         {
             public XDocument? EmployeesDataXml { get; set; }
             public bool NeedRecalculate { get; set; } = isNew;
+        }
+        private static XDocument AddSumElement(XDocument doc)
+        {
+            var pay = doc.Root!;
+            pay.Elements("sum").Remove();
+
+            var total = 0m;
+            foreach (var item in pay.Elements("item"))
+            {
+                var amountValue = (string?)item.Attribute("amount");
+                if (string.IsNullOrWhiteSpace(amountValue))
+                {
+                    continue;
+                }
+
+                var normalized = amountValue.Replace('.', ',');
+                if (decimal.TryParse(normalized, out var amount))
+                {
+                    total += amount;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"invalid amount value '{amountValue}'");
+                }
+            }
+
+            pay.Add(new XElement("sum", new XAttribute("amount", total.ToString(CultureInfo.InvariantCulture))));
+            return doc;
         }
     }
 }
