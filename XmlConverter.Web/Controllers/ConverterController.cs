@@ -29,12 +29,45 @@ namespace XmlConverter.Web.Controllers
             return Ok("Document uploaded");
         }
 
-        [HttpPost("getConverted")]
-        public async Task<IActionResult> ConvertData()
+        [HttpGet("converted")]
+        public IActionResult ConvertData()
         {
             var doc = storage.GetEmployeesData();
 
             return Ok(doc.ToString());
         }
+
+        [HttpGet("data")]
+        public IActionResult GetData()
+        {
+            var doc = storage.GetData();
+
+            return Ok(doc.ToString());
+        }
+
+        [HttpPost("append_data")]
+        public IActionResult AppendData([FromQuery] AppendItemRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name) ||
+                string.IsNullOrWhiteSpace(request.Surname) ||
+                string.IsNullOrWhiteSpace(request.Amount) ||
+                string.IsNullOrWhiteSpace(request.Month))
+            {
+                return BadRequest("Missing required fields");
+            }
+
+            var item = new XElement(
+                "item",
+                new XAttribute("name", request.Name),
+                new XAttribute("surname", request.Surname),
+                new XAttribute("amount", request.Amount),
+                new XAttribute("month", request.Month));
+
+            storage.AddItemIfCorrectType(item);
+
+            return Ok("Item appended");
+        }
+
+        public sealed record AppendItemRequest(string Name, string Surname, string Amount, string Month);
     }
 }

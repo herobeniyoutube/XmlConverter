@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using XmlConverter.Web.XmlValidators.EmployersData;
@@ -16,10 +17,7 @@ namespace XmlConverter.Web
         {
             if (ConvertedData.NeedRecalculate || ConvertedData.EmployeesDataXml is null)
             {
-                if (_data is null || EmployeesType is null)
-                {
-                    throw new InvalidOperationException("empty data");
-                }
+                if (_data is null || EmployeesType is null) throw new InvalidOperationException("empty data");
 
                 var transfrom = LoadXslt(GetXlstPath());
 
@@ -43,17 +41,22 @@ namespace XmlConverter.Web
         public void ReplaceData(XDocument doc, EmployeesDataType type)
         {
             EmployeesType = type;
-            _data = type == EmployeesDataType.Data1 ? AddSumElement(doc) : doc;
+            var updated = type == EmployeesDataType.Data1 ? AddSumElement(doc) : doc;
+            _data = NormalizeDocument(updated);
             ConvertedData.EmployeesDataXml = null;
             ConvertedData.NeedRecalculate = true;
         }
 
         public void AddItemIfCorrectType(XElement item)
         {
-            if (EmployeesType != EmployeesDataType.Data1)
-            {
-                throw new InvalidOperationException("not supported");
-            }
+            if (_data is null) throw new InvalidOperationException("empty data");
+            if (EmployeesType != EmployeesDataType.Data1) throw new InvalidOperationException("not supported");
+
+            _data.Root!.Add(new XElement(item));
+
+            _data = NormalizeDocument(AddSumElement(_data));
+            ConvertedData.EmployeesDataXml = null;
+            ConvertedData.NeedRecalculate = true;
         }
 
         private static XslCompiledTransform LoadXslt(string xlst)
@@ -81,11 +84,6 @@ namespace XmlConverter.Web
             throw new InvalidOperationException($"xlst not found for type {EmployeesType}");
         }
 
-        private class EmployeesData(bool isNew)
-        {
-            public XDocument? EmployeesDataXml { get; set; }
-            public bool NeedRecalculate { get; set; } = isNew;
-        }
         private static XDocument AddSumElement(XDocument doc)
         {
             var pay = doc.Root!;
@@ -113,6 +111,29 @@ namespace XmlConverter.Web
 
             pay.Add(new XElement("sum", new XAttribute("amount", total.ToString(CultureInfo.InvariantCulture))));
             return doc;
+        }
+
+        private class EmployeesData(bool isNew)
+        {
+            public XDocument? EmployeesDataXml { get; set; }
+            public bool NeedRecalculate { get; set; } = isNew;
+        }
+
+        private static XDocument NormalizeDocument(XDocument doc)
+        {
+            var settings = new XmlWriterSettings
+            {
+                Indent = true,
+                OmitXmlDeclaration = false
+            };
+
+            using var sw = new StringWriter(CultureInfo.InvariantCulture);
+            using (var xw = XmlWriter.Create(sw, settings))
+            {
+                doc.Save(xw);
+            }
+
+            return XDocument.Parse(sw.ToString(), LoadOptions.None);
         }
     }
 }
