@@ -1,8 +1,8 @@
-using Microsoft.OpenApi.Writers;
+using XmlConverter.Web.Abstractions;
 
 namespace XmlConverter.Web.XmlValidators.EmployersData
 {
-    public class EmployersDataValidator : XmlValidator
+    public class EmployersDataValidator : XmlValidator, IEmployersDataValidator
     {
         public override string GetNameFromNamespace(int indexFromEnd)
         {

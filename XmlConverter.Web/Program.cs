@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using XmlConverter.Web;
+using XmlConverter.Web.Abstractions;
 using XmlConverter.Web.Middleware;
 using XmlConverter.Web.Services;
 using XmlConverter.Web.XmlValidators.EmployersData;
@@ -12,9 +13,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<EmployeeDataInMemoryStorage>();
-builder.Services.AddTransient<EmployersDataValidator>();
-builder.Services.AddTransient<ConverterService>();
+builder.Services.AddSingleton<IEmployeeDataStorage, EmployeeDataInMemoryStorage>();
+builder.Services.AddTransient<IEmployersDataValidator, EmployersDataValidator>();
+builder.Services.AddTransient<IConverterService, ConverterService>();
 
 builder.Services.AddRazorPages(options =>
 {

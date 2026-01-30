@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
+using XmlConverter.Web.Abstractions;
 using XmlConverter.Web.Dto;
 using XmlConverter.Web.XmlValidators.EmployersData;
 
 namespace XmlConverter.Web.Services
 {
-    public class ConverterService(EmployeeDataInMemoryStorage storage, EmployersDataValidator validator)
+    public class ConverterService(IEmployeeDataStorage storage, IEmployersDataValidator validator) : IConverterService
     {
         public async Task Upload(Stream reader, CancellationToken cancellationToken = default)
         {

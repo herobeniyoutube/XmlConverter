@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using XmlConverter.Web.Abstractions;
 using XmlConverter.Web.Dto;
-using XmlConverter.Web.Services;
 
 namespace XmlConverter.Web.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ConverterController(ConverterService service) : ControllerBase
+    public class ConverterController(IConverterService service) : ControllerBase
     {
         [HttpPost("upload")]
         public async Task<IActionResult> Upload()

@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using XmlConverter.Web.Services;
+using XmlConverter.Web.Abstractions;
 
 namespace XmlConverter.Web.Pages
 {
     [IgnoreAntiforgeryToken]
-    public class IndexModel(ConverterService service, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment) : PageModel
+    public class IndexModel(IConverterService service, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment) : PageModel
     {
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Enviroment = environment;
         public string Error { get; set; } = string.Empty;

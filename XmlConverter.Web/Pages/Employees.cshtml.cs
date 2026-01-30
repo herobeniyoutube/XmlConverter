@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Xml.Linq;
+using XmlConverter.Web.Abstractions;
 using XmlConverter.Web.Dto;
-using XmlConverter.Web.Services;
 using XmlConverter.Web.XmlValidators.EmployersData;
 
 namespace XmlConverter.Web.Pages
 {
-    public class EmployeesModel(ConverterService service) : PageModel
+    public class EmployeesModel(IConverterService service) : PageModel
     {
         public string ConvertedXml { get; private set; } = string.Empty;
         public string SourceXml { get; private set; } = string.Empty;
@@ -28,17 +28,17 @@ namespace XmlConverter.Web.Pages
 
         public void OnGet()
         {
-            LoadXml(service);
+            LoadXml();
         }
 
         public IActionResult OnPostAppend()
         {
             service.AppendData(new AppendItemRequest(Name, Surname, Amount, Month));
-            LoadXml(service);
+            LoadXml();
             return Page();
         }
 
-        private void LoadXml(ConverterService service)
+        private void LoadXml()
         {
             EmployeesType = service.GetEmployeesType();
             ConvertedXml = service.ConvertData();

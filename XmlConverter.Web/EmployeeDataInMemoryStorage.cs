@@ -2,13 +2,14 @@ using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
+using XmlConverter.Web.Abstractions;
 using XmlConverter.Web.Dto;
 using XmlConverter.Web.XmlValidators.EmployersData;
 using static XmlConverter.Web.XmlValidators.ValidatorExtension;
 
 namespace XmlConverter.Web
 {
-    public class EmployeeDataInMemoryStorage
+    public class EmployeeDataInMemoryStorage : IEmployeeDataStorage
     {
         EmployeesData ConvertedData { get; init; } = new EmployeesData(true);
         XDocument? _data;
