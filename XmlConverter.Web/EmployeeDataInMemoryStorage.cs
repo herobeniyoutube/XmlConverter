@@ -1,6 +1,7 @@
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using XmlConverter.Web.XmlValidators.EmployersData;
+using static XmlConverter.Web.XmlValidators.ValidatorExtension;
 
 namespace XmlConverter.Web
 {
@@ -59,8 +60,8 @@ namespace XmlConverter.Web
 
         private string GetXlstPath()
         {
-            var dir = Path.Combine(AppContext.BaseDirectory, "XmlValidators", "EmployersData");
-            var schemas = Directory.GetFileSystemEntries(dir, "*.xslt", SearchOption.TopDirectoryOnly);
+            var parts = typeof(EmployersDataValidator).Namespace!.Split('.');
+            var schemas = GetSchemas(parts[^2], parts[^1], "*.xslt");
 
             foreach (var schema in schemas)
             {

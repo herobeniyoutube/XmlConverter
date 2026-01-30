@@ -3,7 +3,7 @@ using System.Xml.Schema;
 
 namespace XmlConverter.Web.XmlValidators
 {
-    public static class XmlValidator
+    public abstract class XmlValidator
     {
         public static async Task<IReadOnlyList<string>> ValidateXmlAsync(Stream xmlStream, string xsdPath, CancellationToken cancellationToken = default)
         {
@@ -30,6 +30,8 @@ namespace XmlConverter.Web.XmlValidators
 
             return errors;
         }
+
+        public abstract string GetNameFromNamespace(int indexFromEnd);
     }
 }
 

@@ -6,7 +6,7 @@ namespace XmlConverter.Web.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ConverterController(ILogger<ConverterController> logger, EmployeeDataInMemoryStorage storage) : ControllerBase
+    public class ConverterController(ILogger<ConverterController> logger, EmployeeDataInMemoryStorage storage, EmployersDataValidator validator) : ControllerBase
     {
         [HttpPost("upload")]
         public async Task<IActionResult> Upload()
@@ -20,7 +20,7 @@ namespace XmlConverter.Web.Controllers
             await Request.Body.CopyToAsync(buffer, HttpContext.RequestAborted);
             buffer.Position = 0;
 
-            var type = await EmployersDataValidator.ValidateAsync(buffer, HttpContext.RequestAborted);
+            var type = await validator.ValidateAsync(buffer, HttpContext.RequestAborted);
             buffer.Position = 0;
 
             var xdoc = XDocument.Load(buffer, LoadOptions.PreserveWhitespace);

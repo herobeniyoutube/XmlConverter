@@ -1,13 +1,22 @@
+using Microsoft.OpenApi.Writers;
+
 namespace XmlConverter.Web.XmlValidators.EmployersData
 {
-    public static class EmployersDataValidator
+    public class EmployersDataValidator : XmlValidator
     {
-        public static async Task<EmployeesDataType> ValidateAsync(Stream xmlStream, CancellationToken cancellationToken = default)
+        public override string GetNameFromNamespace(int indexFromEnd)
         {
-            var xsdDir = Path.Combine(AppContext.BaseDirectory, "XmlValidators", "EmployersData");
-            var schemas = Directory.GetFileSystemEntries(xsdDir, "*.xsd", SearchOption.TopDirectoryOnly);
+            var ns = typeof(EmployersDataValidator).Namespace!;
+            var parts = ns.Split('.');
 
-            if (schemas.Length == 0)
+            return parts[^indexFromEnd];
+        }
+
+        public  async Task<EmployeesDataType> ValidateAsync(Stream xmlStream, CancellationToken cancellationToken = default)
+        {
+            var schemas = ValidatorExtension.GetSchemas(GetNameFromNamespace(2), GetNameFromNamespace(1), "*.xsd");
+
+            if (schemas.Count == 0)
             {
                 throw new Exception("Incorrect input format");
             }
@@ -19,7 +28,7 @@ namespace XmlConverter.Web.XmlValidators.EmployersData
             foreach (var schema in schemas)
             {
                 buffer.Position = 0;
-                var errors = await XmlValidator.ValidateXmlAsync(buffer, schema, cancellationToken);
+                var errors = await ValidateXmlAsync(buffer, schema, cancellationToken);
                 if (errors.Count == 0)
                 {
                     var name = Path.GetFileNameWithoutExtension(schema);
