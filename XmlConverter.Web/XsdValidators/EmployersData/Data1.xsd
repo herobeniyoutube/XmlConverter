@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="AmountType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]+([.,][0-9]+)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MonthType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="january"/>
+      <xs:enumeration value="february"/>
+      <xs:enumeration value="march"/>
+      <xs:enumeration value="april"/>
+      <xs:enumeration value="may"/>
+      <xs:enumeration value="june"/>
+      <xs:enumeration value="july"/>
+      <xs:enumeration value="august"/>
+      <xs:enumeration value="september"/>
+      <xs:enumeration value="october"/>
+      <xs:enumeration value="november"/>
+      <xs:enumeration value="december"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ItemType">
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="surname" type="xs:string" use="required"/>
+    <xs:attribute name="amount" type="AmountType" use="required"/>
+    <xs:attribute name="month" type="MonthType" use="required"/>
+  </xs:complexType>
+
+  <xs:element name="Pay">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="ItemType" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+
